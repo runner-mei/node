@@ -7,7 +7,9 @@
   SignalWrap* wrap =  \
       static_cast<SignalWrap*>(args.Holder()->GetPointerFromInternalField(0)); \
   if (!wrap) { \
-    SetErrno(UV_EBADF); \
+    uv_err_t err; \
+    err.code = UV_EBADF; \
+    SetErrno(err); \
     return scope.Close(Integer::New(-1)); \
   }
 
@@ -107,7 +109,7 @@ class SignalWrap : public HandleWrap {
     int r = uv_signal_start(&wrap->handle_);
 
     // Error starting the timer.
-    if (r) SetErrno(uv_last_error(uv_default_loop()).code);
+    if (r) SetErrno(uv_last_error(uv_default_loop()));
 
     wrap->StateChange();
 
@@ -121,7 +123,7 @@ class SignalWrap : public HandleWrap {
 
     int r = uv_signal_stop(&wrap->handle_);
 
-    if (r) SetErrno(uv_last_error(uv_default_loop()).code);
+    if (r) SetErrno(uv_last_error(uv_default_loop()));
 
     wrap->StateChange();
 
