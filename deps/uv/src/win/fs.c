@@ -264,6 +264,10 @@ void fs__open(uv_fs_t* req, const wchar_t* path, int flags, int mode) {
     SET_REQ_RESULT_WIN32_ERROR(req, GetLastError());
     return;
   }
+  if(0 != (_O_APPEND & flags) && -1 == SetFilePointer(file, 0, NULL, FILE_END)) {
+    SET_REQ_RESULT_WIN32_ERROR(req, GetLastError());
+    return;
+  }
   result = _open_osfhandle((intptr_t)file, flags);
 end:
   SET_REQ_RESULT(req, result);
